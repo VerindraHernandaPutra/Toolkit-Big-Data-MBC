@@ -184,13 +184,19 @@ def handle_change_dtype(df):
                 df_cleaned[selected_column] = df_cleaned[selected_column].astype(str)
             elif new_dtype == "category":
                 df_cleaned[selected_column] = df_cleaned[selected_column].astype("category")
-            
+            elif new_dtype == "bool":
+                df_cleaned[selected_column] = df_cleaned[selected_column].astype(bool)
+            elif new_dtype == "datetime":
+                df_cleaned[selected_column] = pd.to_datetime(df_cleaned[selected_column], errors='coerce')
+            elif new_dtype == "object":
+                df_cleaned[selected_column] = df_cleaned[selected_column].astype(object)
+
             st.session_state.df = df_cleaned
             st.success(f"✅ Column '{selected_column}' successfully converted to {new_dtype}.")
             st.write(df_cleaned.head())
-        
         except Exception as e:
-            st.error(f"❌ Error converting column '{selected_column}' to {new_dtype}: {str(e)}")
+            st.error(f"❌ Failed to convert column '{selected_column}' to {new_dtype}. Error: {e}")
+
 
 def handle_drop_columns(df):
     st.subheader("Drop Column:")
