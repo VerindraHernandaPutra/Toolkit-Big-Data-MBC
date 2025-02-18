@@ -170,7 +170,7 @@ def handle_change_dtype(df):
     selected_column = st.selectbox("Select a column:", df.columns, key="change_dtype_column")
 
     # Pilih tipe data
-    new_dtype = st.selectbox("Select new data type:", ["int", "float", "string", "category"], key="change_dtype_type")
+    new_dtype = st.selectbox("Select new data type:", ["int", "float", "string", "category", "bool", "datetime", "object"], key="change_dtype_type")
 
     # Apply
     if st.button(f"Convert '{selected_column}' to {new_dtype}", key=f"convert_dtype_{selected_column}"):
