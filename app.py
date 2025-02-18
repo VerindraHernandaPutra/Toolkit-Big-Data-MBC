@@ -7,6 +7,21 @@ import data_cleansing as dcsg
 import data_preprocessing as dppc
 import data_modeling as dm
 
+hide_st_style = """
+<style>
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+footer > div:first-of-type {visibility: hidden;}
+body {display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; flex-direction: column;}
+input[type='text'] {width: 300px; padding: 10px; font-size: 18px;}
+.stAlert {font-size: 20px;}
+a {color: blue; text-decoration: underline;}
+</style>
+"""
+
+st.markdown(hide_st_style, unsafe_allow_html=True)
+
 VALID_USERS = {
     "user1": "password1",
     "user2": "password2"
