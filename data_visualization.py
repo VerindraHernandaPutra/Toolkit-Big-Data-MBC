@@ -11,7 +11,7 @@ def data_visualization_page():
         df = st.session_state.df
 
         st.write("Data Preview:")
-        st.write(df.head(10))
+        st.dataframe(df.head(10), use_container_width=True, hide_index=True)
 
         # Choose between numeric only or include categorical data
         data_option = st.radio("Choose data type:", ["Numeric Only", "Include Categorical"])
