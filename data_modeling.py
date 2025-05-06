@@ -2,16 +2,22 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import (
+    LogisticRegression, LinearRegression, Ridge, Lasso, ElasticNet,
+    SGDRegressor, SGDClassifier, Perceptron, PassiveAggressiveClassifier,
+    RidgeClassifier, LogisticRegressionCV, TheilSenRegressor, HuberRegressor, RANSACRegressor
+)
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, BaggingClassifier, RandomForestRegressor, GradientBoostingRegressor
 import xgboost as xgb
-from sklearn.metrics import (accuracy_score, confusion_matrix, precision_score, recall_score, f1_score, roc_auc_score, log_loss, matthews_corrcoef, cohen_kappa_score,
-                             mean_squared_error, mean_absolute_error, r2_score, mean_absolute_percentage_error, explained_variance_score, max_error, median_absolute_error)
+from sklearn.metrics import (
+    accuracy_score, confusion_matrix, precision_score, recall_score, f1_score, roc_auc_score, log_loss,
+    matthews_corrcoef, cohen_kappa_score, mean_squared_error, mean_absolute_error, r2_score,
+    mean_absolute_percentage_error, explained_variance_score, max_error, median_absolute_error
+)
 import matplotlib.pyplot as plt
 import seaborn as sns
 import joblib
 from sklearn.utils.validation import check_is_fitted
-
 
 def modeling_page():
     st.title("Data Modeling")
@@ -26,7 +32,7 @@ def modeling_page():
                 model = joblib.load(uploaded_model)
                 st.write("Model loaded successfully!")
 
-                model_type = "classification" if hasattr(model, "predict") and hasattr(model, "classes_") else "regression"
+                model_type = "classification" if hasattr(model, "predict_proba") else "regression"
 
                 target_column = st.selectbox("Select Target Column:", df.columns)
                 X = df.drop(columns=[target_column])
@@ -87,8 +93,16 @@ def modeling_page():
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
             model_options = {
-                "Regression": ["Random Forest", "Gradient Boosting", "XGBoost"],
-                "Classification": ["Logistic Regression", "Random Forest", "Gradient Boosting", "XGBoost", "Bagging"]
+                "Regression": [
+                    "Random Forest", "Gradient Boosting", "XGBoost", "Linear Regression",
+                    "Ridge Regression", "Lasso Regression", "ElasticNet Regression",
+                    "SGD Regression", "Theil-Sen Estimator", "Huber Regression", "RANSAC Regression"
+                ],
+                "Classification": [
+                    "Logistic Regression", "Logistic Regression CV", "Random Forest",
+                    "Gradient Boosting", "XGBoost", "Bagging", "SGD Classifier",
+                    "Perceptron", "Passive Aggressive Classifier", "Ridge Classifier"
+                ]
             }
             model_type = st.selectbox("Select Algorithm:", model_options[task_type])
 
@@ -96,29 +110,58 @@ def modeling_page():
                 "Random Forest": (RandomForestClassifier, RandomForestRegressor),
                 "Gradient Boosting": (GradientBoostingClassifier, GradientBoostingRegressor),
                 "XGBoost": (xgb.XGBClassifier, xgb.XGBRegressor),
-                "Logistic Regression": (LogisticRegression,),
-                "Bagging": (BaggingClassifier,)
+                "Logistic Regression": (LogisticRegression, None),
+                "Bagging": (BaggingClassifier, None),
+                "Linear Regression": (None, LinearRegression),
+                "Ridge Regression": (None, Ridge),
+                "Lasso Regression": (None, Lasso),
+                "ElasticNet Regression": (None, ElasticNet),
+                "SGD Regression": (None, SGDRegressor),
+                "Theil-Sen Estimator": (None, TheilSenRegressor),
+                "Huber Regression": (None, HuberRegressor),
+                "RANSAC Regression": (None, RANSACRegressor),
+                "SGD Classifier": (SGDClassifier, None),
+                "Perceptron": (Perceptron, None),
+                "Passive Aggressive Classifier": (PassiveAggressiveClassifier, None),
+                "Ridge Classifier": (RidgeClassifier, None),
+                "Logistic Regression CV": (LogisticRegressionCV, None),
             }
 
             params_grid = {
-                "Random Forest": {'n_estimators': [100, 200, 500], 'max_depth': [None, 5, 10], 'min_samples_split': [2, 5], 'random_state': [42]},
-                "Gradient Boosting": {'learning_rate': [0.01, 0.1, 0.2], 'n_estimators': [100, 200, 500], 'max_depth': [3, 5, 7]},
-                "XGBoost": {'learning_rate': [0.01, 0.1, 0.2], 'n_estimators': [100, 200, 500], 'max_depth': [3, 5, 7]},
-                "Logistic Regression": {'C': [0.1, 1, 10], 'solver': ['liblinear', 'lbfgs']},
-                "Bagging": {'n_estimators': [10, 50, 100], 'max_samples': [0.5, 0.7, 1.0], 'random_state': [42]}
+                "Random Forest": {'n_estimators': [100, 200], 'max_depth': [None, 10], 'min_samples_split': [2, 5]},
+                "Gradient Boosting": {'n_estimators': [100, 200], 'learning_rate': [0.1, 0.2], 'max_depth': [3, 5]},
+                "XGBoost": {'n_estimators': [100, 200], 'learning_rate': [0.1, 0.2], 'max_depth': [3, 5]},
+                "Logistic Regression": {'C': [0.1, 1], 'solver': ['liblinear', 'lbfgs']},
+                "Bagging": {'n_estimators': [10, 50], 'max_samples': [0.7, 1.0]},
+                "Linear Regression": {'fit_intercept': [True, False]},
+                "Ridge Regression": {'alpha': [0.1, 1.0], 'solver': ['auto', 'svd']},
+                "Lasso Regression": {'alpha': [0.1, 1.0], 'selection': ['cyclic', 'random']},
+                "ElasticNet Regression": {'alpha': [0.1, 1.0], 'l1_ratio': [0.5, 0.8]},
+                "SGD Regression": {'loss': ['squared_error', 'huber'], 'alpha': [0.0001, 0.001]},
+                "Theil-Sen Estimator": {'n_subsamples': [50, 100]},
+                "Huber Regression": {'epsilon': [1.35, 1.5], 'alpha': [0.001, 0.01]},
+                "RANSAC Regression": {'min_samples': [0.5, None]},
+                "SGD Classifier": {'loss': ['hinge', 'log_loss'], 'alpha': [0.0001, 0.001]},
+                "Perceptron": {'penalty': ['l2', 'l1'], 'alpha': [0.0001, 0.001]},
+                "Passive Aggressive Classifier": {'C': [0.1, 1.0], 'loss': ['hinge', 'squared_hinge']},
+                "Ridge Classifier": {'alpha': [0.1, 1.0], 'solver': ['auto', 'svd']},
+                "Logistic Regression CV": {'Cs': [10, 100], 'solver': ['liblinear', 'lbfgs']}
             }
 
             train_button = st.button("Train Model")
 
             if train_button:
-                model_class = model_classes[model_type][0 if task_type == "Classification" else 1]
-                model = model_class(random_state=42)
+                # Determine model class based on task
+                model_class_tuple = model_classes[model_type]
+                model_class = model_class_tuple[0] if task_type == "Classification" else model_class_tuple[1]
+                model = model_class()
+
+                # Get parameter grid
                 param_grid = params_grid[model_type]
 
-                grid_search = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, scoring='accuracy' if task_type == "Classification" else 'neg_mean_squared_error')
-
+                grid_search = GridSearchCV(model, param_grid, cv=3, scoring='accuracy' if task_type == "Classification" else 'r2')
                 try:
-                    grid_search.fit(X_train, y_train.values.ravel() if len(y_train.shape) > 1 else y_train)
+                    grid_search.fit(X_train, y_train)
                     best_model = grid_search.best_estimator_
 
                     try:
