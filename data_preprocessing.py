@@ -10,7 +10,7 @@ def data_preprocessing_page():
         df = st.session_state.df
 
         st.write("### Data Preview:")
-        st.write(df.head(10))
+        st.dataframe(df.head(10), use_container_width=True, hide_index=True)
 
         st.write("### Choose Preprocessing Task:")
 
@@ -54,7 +54,7 @@ def feature_scaling(df):
         df[selected_columns] = scaler.fit_transform(df[selected_columns])
         st.session_state.df = df
         st.success(f"✅ {scaler_type} applied.")
-        st.write(df.head())
+        st.dataframe(df.head(), use_container_width=True, hide_index=True)
 
 def feature_engineering(df):
     st.subheader("Feature Engineering:")
@@ -117,7 +117,7 @@ def encoding(df):
             df[column] = df[column].astype('category').cat.codes
             st.session_state.df = df
             st.success(f"✅ Label Encoding applied to '{column}'.")
-            st.write(df.head())
+            st.dataframe(df.head(), use_container_width=True, hide_index=True)
 
     elif encoding_method == "One-Hot Encoding":
         column = st.selectbox("Select column for One-Hot Encoding:", df.select_dtypes(include=['object']).columns)
@@ -125,7 +125,7 @@ def encoding(df):
             df = pd.get_dummies(df, columns=[column], drop_first=True)
             st.session_state.df = df
             st.success(f"✅ One-Hot Encoding applied to '{column}'.")
-            st.write(df.head())
+            st.dataframe(df.head(), use_container_width=True, hide_index=True)
 
     elif encoding_method == "Ordinal Encoding":
         column = st.selectbox("Select column for Ordinal Encoding:", df.select_dtypes(include=['object']).columns)
@@ -141,6 +141,6 @@ def encoding(df):
             df[column] = df[column].astype(pd.CategoricalDtype(categories=ordered_categories, ordered=True)).cat.codes
             st.session_state.df = df
             st.success(f"✅ Ordinal Encoding applied to '{column}'.")
-            st.write(df.head())
+            st.dataframe(df.head(), use_container_width=True, hide_index=True)
         else:
             st.warning("⚠️ Please reorder the categories before applying encoding.")
