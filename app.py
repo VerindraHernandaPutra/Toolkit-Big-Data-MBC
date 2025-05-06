@@ -6,6 +6,7 @@ import data_visualization as dvz
 import data_cleansing as dcsg
 import data_preprocessing as dppc
 import data_modeling as dm
+import competition_page as comp
 
 hide_st_style = """
 <style>
@@ -47,7 +48,7 @@ def modeling_page():
 
 def main_page():
     st.sidebar.title("Navigation")
-    selection = st.sidebar.radio("Go to", ["Data", "Data Visualization", "Data Cleansing", "Data Preprocessing", "Modeling"], key="navbar")
+    selection = st.sidebar.radio("Go to", ["Data", "Data Visualization", "Data Cleansing", "Data Preprocessing", "Modeling", "Competition"], key="navbar")
 
     if selection == "Data":
         data.data_page()
@@ -59,6 +60,8 @@ def main_page():
         dppc.data_preprocessing_page()
     elif selection == "Modeling":
         dm.modeling_page()
+    elif selection == "Competition":
+        comp.competition()
 
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
