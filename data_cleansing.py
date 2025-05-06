@@ -18,13 +18,24 @@ def handle_missing_values(df):
         tab2.success("✅ No missing values detected.")
         return
 
+    # Deletion Tab (tab1) modifications
     selected_columns = tab1.multiselect("Select columns to remove missing values:", missing_columns, key="remove_missing_select")
+    
+    # Vertical button layout
     if tab1.button("Remove Selected Missing Values", key="remove_missing"):
         df_cleaned = df.dropna(subset=selected_columns)
         st.session_state.df = df_cleaned
         tab1.success("✅ Selected Missing Values Removed.")
         tab1.write(df_cleaned.head())
+    
+    if tab1.button("Remove All Missing Values", key="remove_all"):
+        df_cleaned = df.dropna()
+        st.session_state.df = df_cleaned
+        tab1.success("✅ All Missing Values Removed.")
+        tab1.write(df_cleaned.head())
 
+    # Rest of the code remains unchanged...
+    # Imputation Tab (tab2)
     tab2.write("### Choose Columns & Imputation Method:")
     selected_columns = tab2.multiselect("Select columns to clean:", missing_columns, key="column_select")
     impute_method = tab2.radio("Select an Imputation Method:", ["Mean", "Median", "Mode", "Custom Value"], horizontal=True, key="impute_radio")
