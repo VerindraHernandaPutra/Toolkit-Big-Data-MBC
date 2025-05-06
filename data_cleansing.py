@@ -26,15 +26,14 @@ def handle_missing_values(df):
         df_cleaned = df.dropna(subset=selected_columns)
         st.session_state.df = df_cleaned
         tab1.success("✅ Selected Missing Values Removed.")
-        tab1.write(df_cleaned.head())
+        tab1.dataframe(df_cleaned.head(), use_container_width=True, hide_index=True)
     
     if tab1.button("Remove All Missing Values", key="remove_all"):
         df_cleaned = df.dropna()
         st.session_state.df = df_cleaned
         tab1.success("✅ All Missing Values Removed.")
-        tab1.write(df_cleaned.head())
+        tab1.dataframe(df_cleaned.head(), use_container_width=True, hide_index=True)
 
-    # Rest of the code remains unchanged...
     # Imputation Tab (tab2)
     tab2.write("### Choose Columns & Imputation Method:")
     selected_columns = tab2.multiselect("Select columns to clean:", missing_columns, key="column_select")
@@ -58,7 +57,7 @@ def handle_missing_values(df):
         
         st.session_state.df = df_cleaned
         tab2.success(f"✅ Missing Values Imputed using {impute_method}.")
-        tab2.write(df_cleaned.head())
+        tab2.dataframe(df_cleaned.head(), use_container_width=True, hide_index=True)
 
 
 def detect_outliers_iqr(df):
@@ -111,7 +110,7 @@ def handle_outliers(df):
                 df_cleaned = df_cleaned.drop(index=outlier_columns[col])
             st.session_state.df = df_cleaned
             tab1.success("✅ Outliers removed.")
-            tab1.write(df_cleaned.head())
+            tab1.dataframe(df_cleaned.head(), use_container_width=True, hide_index=True)
 
     # --- Method 2: Transform Data ---
     with tab2:
@@ -126,7 +125,7 @@ def handle_outliers(df):
                 df_cleaned[selected_column], _ = boxcox(df_cleaned[selected_column] + 1)  # Box-Cox requires positive values
             st.session_state.df = df_cleaned
             tab2.success(f"✅ {transformation_type} Transformation Applied to '{selected_column}'.")
-            tab2.write(df_cleaned.head())
+            tab2.dataframe(df_cleaned.head(), use_container_width=True, hide_index=True)
 
     # --- Method 3: Cap/Floor ---
     with tab3:
@@ -144,7 +143,7 @@ def handle_outliers(df):
                 df_cleaned[col] = np.where(df[col] > upper_bound, upper_bound, df[col])
             st.session_state.df = df_cleaned
             tab3.success("✅ Outliers Capped/Floored.")
-            tab3.write(df_cleaned.head())
+            tab3.dataframe(df_cleaned.head(), use_container_width=True, hide_index=True)
 
     # --- Method 4: Imputation ---
     with tab4:
@@ -168,7 +167,7 @@ def handle_outliers(df):
 
             st.session_state.df = df_cleaned
             tab4.success(f"✅ Outliers in '{selected_column}' Imputed using {impute_method}.")
-            tab4.write(df_cleaned.head())
+            tab4.dataframe(df_cleaned.head(), use_container_width=True, hide_index=True)
 
 def handle_change_dtype(df):
     st.subheader("Change Data Type:")
@@ -204,7 +203,7 @@ def handle_change_dtype(df):
 
             st.session_state.df = df_cleaned
             st.success(f"✅ Column '{selected_column}' successfully converted to {new_dtype}.")
-            st.write(df_cleaned.head())
+            st.dataframe(df_cleaned.head(), use_container_width=True, hide_index=True)
         except Exception as e:
             st.error(f"❌ Failed to convert column '{selected_column}' to {new_dtype}. Error: {e}")
 
@@ -217,7 +216,7 @@ def handle_drop_columns(df):
         df_cleaned = df.drop(columns=selected_columns)
         st.session_state.df = df_cleaned
         st.success("✅ Selected columns have been dropped.")
-        st.write(df_cleaned.head())
+        st.dataframe(df_cleaned.head(), use_container_width=True, hide_index=True)
 
 
 def data_cleansing_page():
@@ -228,7 +227,7 @@ def data_cleansing_page():
         df = st.session_state.df
 
         st.write("### Data Preview:")
-        st.write(df.head(10))
+        st.dataframe(df.head(10), use_container_width=True, hide_index=True)
 
         st.write("### What cleansing you're gonna do huh?")
 
@@ -246,7 +245,7 @@ def data_cleansing_page():
                 df_cleaned = df.drop_duplicates()
                 st.session_state.df = df_cleaned
                 tab2.success("✅ Duplicates removed.")
-                tab2.write(df_cleaned.head())
+                tab2.dataframe(df_cleaned.head(), use_container_width=True, hide_index=True)
 
         # --------- Outliers (Tab 3) ---------
         with tab3:
