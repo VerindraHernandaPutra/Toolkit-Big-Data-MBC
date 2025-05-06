@@ -10,8 +10,13 @@ def data_page():
 
     if uploaded_file is not None:
         try:
-            st.session_state.df = pd.read_csv(uploaded_file)
+            # Read CSV with index column handling
+            st.session_state.df = pd.read_csv(uploaded_file).reset_index(drop=True)
             st.session_state.file_uploaded = True
+
+            # Clean any existing index columns
+            if 'Unnamed: 0' in st.session_state.df.columns:
+                st.session_state.df = st.session_state.df.drop(columns=['Unnamed: 0'])
 
         except pd.errors.EmptyDataError:
             st.error("The uploaded file is empty. Please upload a valid CSV file.")
@@ -25,30 +30,35 @@ def data_page():
 
         # Data Preview
         st.write("Data Preview:")
-        st.write(df.head(10))
+        st.dataframe(df.head(10), use_container_width=True, hide_index=True)
 
-        # Mau tambahkan tab baru, sini aj bre
         tab1, tab2, tab3, tab4 = st.tabs(["📈 Complete Table", "☣️ Null Values", "🎌 Duplicated Values", "📑 Data Types"])
 
-        # Tab 1 - Complete Tabel, untuk menampilkan semua tabel secara lengkap
+        # Tab 1 - Complete Table
         tab1.subheader("Complete Table:")
-        tab1.write(df)
+        tab1.dataframe(df, use_container_width=True, hide_index=True)
 
-        # Tab 2 - Null Values, untuk menampilkan semua null values beserta detailnya
+        # Tab 2 - Null Values
         tab2.subheader("Null Values:")
-        tab2.write(df.isnull().sum())
-        tab2.write("More Detail: ")
-        tab2.write(df.isnull())
+        null_counts = df.isnull().sum().reset_index()
+        null_counts.columns = ["Column name", "Missing value count"]
+        tab2.dataframe(null_counts, use_container_width=True, hide_index=True)
 
-        # Tab 3 - Duplicated Value, untuk menampilkan apakah data terdeteksi adanya nilai duplikasi atau tidak
+        # Tab 3 - Duplicated Values
+        dup_count = df.duplicated().sum()
         tab3.subheader("Duplicated Values: ")
         tab3.write(df.duplicated().sum())
-        tab3.write("More Detail: ")
-        tab3.write(df.duplicated())
+        tab3.dataframe(df[df.duplicated()], 
+                      use_container_width=True,
+                      hide_index=True)
 
-        # Tab 4 - Data Type, untuk mengecek tipe data pada tabel
-        tab4.subheader("Data Type: ")
-        buffer = io.StringIO()
-        df.info(buf=buffer)
-        s = buffer.getvalue()
-        tab4.text(s)
+        # Tab 4 - Data Types
+        tab4.subheader("Data Types Summary:")
+        
+        # Create improved type summary
+        type_info = pd.DataFrame({
+            'Column': df.columns,
+            'Type': df.dtypes.values
+        }).reset_index(drop=True)
+        
+        tab4.dataframe(type_info, use_container_width=True, hide_index=True)
