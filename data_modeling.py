@@ -219,7 +219,7 @@ def modeling_page():
 
                     with open(model_filename, "rb") as file:
                         st.download_button(
-                            label="Download Trained Model",
+                            label="💾 Download Trained Model",
                             data=file,
                             file_name=model_filename,
                             mime="application/octet-stream"
