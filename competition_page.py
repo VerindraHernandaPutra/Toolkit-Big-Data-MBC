@@ -24,8 +24,8 @@ def competition():
     if model_file and test_file and sample_file:
         try:
             model = joblib.load(model_file)
-            test_df = pd.read_csv(test_file)
-            sample_sub = pd.read_csv(sample_file)
+            test_df = pd.read_csv(test_file).drop(columns=['Unnamed: 0'], errors='ignore')
+            sample_sub = pd.read_csv(sample_file).drop(columns=['Unnamed: 0'], errors='ignore')
             
             # Store in session state
             st.session_state.model = model
@@ -49,12 +49,12 @@ def competition():
             with col1:
                 st.subheader("Test Data")
                 st.write(f"Shape: {st.session_state.test_data.shape}")
-                st.dataframe(st.session_state.test_data.head())
+                st.dataframe(st.session_state.test_data.head(), use_container_width=True, hide_index=True)
             
             with col2:
                 st.subheader("Sample Submission")
                 st.write(f"Shape: {st.session_state.sample_sub.shape}")
-                st.dataframe(st.session_state.sample_sub.head())
+                st.dataframe(st.session_state.sample_sub.head(), use_container_width=True, hide_index=True)
     
     # Target column selection
     if 'sample_sub' in st.session_state and st.session_state.sample_sub is not None:
@@ -75,7 +75,7 @@ def competition():
             if st.button("🚀 Generate Predictions"):
                 try:
                     # Preprocess test data
-                    test_df = st.session_state.test_data.copy()
+                    test_df = st.session_state.test_data.copy().drop(columns=['Unnamed: 0'], errors='ignore')
                     X_test = test_df.drop('ID', axis=1)
                     
                     # Handle categorical features
@@ -97,27 +97,22 @@ def competition():
                     predictions = st.session_state.model.predict(X_test)
                     
                     # Create submission
-                    submission = st.session_state.sample_sub.copy()
+                    submission = st.session_state.sample_sub.copy().drop(columns=['Unnamed: 0'], errors='ignore')
                     submission[st.session_state.target_column] = predictions.astype(int)
                     st.session_state.submission = submission
                     
                     st.success(f"✅ Successfully predicted {len(predictions)} samples!")
-                    st.dataframe(submission.head())
+
+                    edited_sub = st.data_editor(st.session_state.submission, use_container_width=True, hide_index=True)
+            
+                    csv = edited_sub.to_csv(index=False).encode('utf-8')
+                    st.download_button(
+                        label="💾 Download Submission CSV",
+                        data=csv,
+                        file_name="submission.csv",
+                        mime="text/csv",
+                        help="Download your predictions in Kaggle submission format"
+                    )
                     
                 except Exception as e:
                     st.error(f"Prediction failed: {str(e)}")
-    
-    # Download section
-    if st.session_state.submission is not None and st.session_state.target_column:
-        st.markdown("---")
-        with st.expander("📥 Download Submission", expanded=True):
-            edited_sub = st.data_editor(st.session_state.submission)
-            
-            csv = edited_sub.to_csv(index=False).encode('utf-8')
-            st.download_button(
-                label="💾 Download Submission CSV",
-                data=csv,
-                file_name="submission.csv",
-                mime="text/csv",
-                help="Download your predictions in Kaggle submission format"
-            )
