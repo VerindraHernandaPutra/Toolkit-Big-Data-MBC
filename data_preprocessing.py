@@ -100,8 +100,14 @@ def feature_engineering(df):
         user_code = st.text_area("Write Python code here (df is your dataframe):", height=200)
         if st.button("Run Custom Code"):
             try:
-                exec(user_code, {'df': df, 'np': np, 'pd': pd})
-                st.session_state.df = df
+                # Create an execution environment with the current DataFrame and modules
+                exec_env = {'df': df, 'np': np, 'pd': pd}
+                # Execute the user's code within this environment
+                exec(user_code, exec_env)
+                # Retrieve the updated DataFrame from the environment
+                updated_df = exec_env['df']
+                # Update the session state with the modified DataFrame
+                st.session_state.df = updated_df
                 st.success("✅ Custom code executed successfully.")
             except Exception as e:
                 st.error(f"Error executing code: {e}")
