@@ -229,7 +229,7 @@ def data_cleansing_page():
         st.write("### Data Preview:")
         st.dataframe(df.head(10), use_container_width=True, hide_index=True)
 
-        st.write("### What cleansing you're gonna do huh?")
+        st.write("### List Cleansing Tool ")
 
         # Mau tambahkan tab baru, sini aj bre
         tab1, tab2, tab3, tab4, tab5 = st.tabs(["📈 Missing Values", "☣️ Duplicated Values", "🎌 Outliers", "📑 Drop Column", "📑 Change Data Type"])
